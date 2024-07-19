@@ -1,5 +1,6 @@
-const { Client, GatewayIntentBits, EmbedBuilder } = require("discord.js");
+const { Client, GatewayIntentBits } = require("discord.js");
 const schedule = require("node-schedule");
+const express = require("express");
 require("dotenv").config();
 
 const token = process.env.DISCORD_BOT_TOKEN;
@@ -12,6 +13,9 @@ const client = new Client({
 });
 
 const channelId = process.env.CHANNEL_ID;
+const port = process.env.PORT || 8080; // Use the port specified by Render or default to 3000
+
+const app = express();
 
 let yesterdayResponse = "";
 let todayResponse = "";
@@ -19,7 +23,6 @@ let completedResponse = "";
 
 client.once("ready", () => {
   console.log("Bot is online!");
-
 
   // Schedule the first job at 9:15AM
   schedule.scheduleJob(
@@ -63,8 +66,7 @@ client.once("ready", () => {
                               name: "What will I do today?",
                               value: todayResponse || "No response",
                             }
-                          )
-                          .setColor("#FF5733");
+                          );
 
                         channel
                           .send({ embeds: [embed] })
@@ -93,12 +95,17 @@ client.once("ready", () => {
   schedule.scheduleJob(
     { hour: 12, minute: 45, dayOfWeek: new schedule.Range(1, 5) },
     () => {
-        const channel = client.channels.cache.get(channelId);
-        if (channel) {
-            // Send a message every 2 minutes
-            channel.send("**Reminder:** The bot is online and working. **Time**: 12:45pm").catch(console.error);
-        }
-    });
+      const channel = client.channels.cache.get(channelId);
+      if (channel) {
+        // Send a message every 2 minutes
+        channel
+          .send(
+            "**Reminder:** The bot is online and working. **Time**: 12:45pm"
+          )
+          .catch(console.error);
+      }
+    }
+  );
 
   // Schedule the second job at 6:30 PM
   schedule.scheduleJob(
@@ -112,8 +119,7 @@ client.once("ready", () => {
           .addFields(
             { name: "Task Planned", value: todayResponse || "No response" },
             { name: "What will I do today?", value: "Awaiting response..." }
-          )
-          .setColor("#FF5733");
+          );
 
         channel
           .send({ embeds: [embed] })
@@ -156,6 +162,17 @@ client.once("ready", () => {
       }
     }
   );
+
+  // Start the Express server
+  app.listen(port, () => {
+    console.log(`Server is listening on port ${port}`);
+  });
 });
 
+// Basic route to respond to HTTP requests
+app.get("/", (req, res) => {
+  res.send("Bot is running!");
+});
+
+// Log in the bot
 client.login(token);

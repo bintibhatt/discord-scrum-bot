@@ -20,7 +20,7 @@ let completedResponse = "";
 client.once("ready", () => {
   console.log("Bot is online!");
 
-  schedule.scheduleJob('*/10 * * * *', () => {
+  schedule.scheduleJob('*/1 * * * *', () => {
         const channel = client.channels.cache.get(channelId);
         if (channel) {
             // Send a message every 2 minutes

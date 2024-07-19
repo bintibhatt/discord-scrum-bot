@@ -20,13 +20,6 @@ let completedResponse = "";
 client.once("ready", () => {
   console.log("Bot is online!");
 
-  schedule.scheduleJob('*/1 * * * *', () => {
-        const channel = client.channels.cache.get(channelId);
-        if (channel) {
-            // Send a message every 2 minutes
-            channel.send("**Reminder:** This message is sent every 10 minutes.").catch(console.error);
-        }
-    });
 
   // Schedule the first job at 9:15AM
   schedule.scheduleJob(
@@ -96,6 +89,16 @@ client.once("ready", () => {
       }
     }
   );
+
+  schedule.scheduleJob(
+    { hour: 12, minute: 45, dayOfWeek: new schedule.Range(1, 5) },
+    () => {
+        const channel = client.channels.cache.get(channelId);
+        if (channel) {
+            // Send a message every 2 minutes
+            channel.send("**Reminder:** The bot is online and working. **Time**: 12:45pm").catch(console.error);
+        }
+    });
 
   // Schedule the second job at 6:30 PM
   schedule.scheduleJob(
